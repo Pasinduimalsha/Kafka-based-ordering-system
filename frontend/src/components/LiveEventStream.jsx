@@ -1,5 +1,5 @@
 import React from 'react';
-import { Terminal, Filter } from 'lucide-react';
+import { Terminal } from 'lucide-react';
 
 export default function LiveEventStream({ events }) {
   const renderStatus = (status) => {
@@ -54,27 +54,28 @@ export default function LiveEventStream({ events }) {
                   </td>
                   <td>{renderStatus(evt.status)}</td>
                   <td className="font-mono" style={{ fontWeight: 600 }}>#{evt.orderId}</td>
-                  <td>{evt.product}</td>
+                  <td style={{ fontWeight: 500 }}>{evt.product}</td>
                   <td
                     className="font-mono"
                     style={{
                       textAlign: 'right',
-                      fontWeight: 500,
-                      color: evt.price >= 0 ? '#34d399' : '#f87171',
+                      fontWeight: 600,
+                      color: evt.price >= 0 ? '#059669' : '#dc2626',
                     }}
                   >
                     ${(evt.price || 0).toFixed(2)}
                   </td>
-                  <td style={{ color: 'var(--text-muted)', fontSize: '0.8125rem' }}>
+                  <td style={{ color: '#475569', fontSize: '0.8125rem' }}>
                     <span
                       className="font-mono"
                       style={{
                         padding: '2px 6px',
                         borderRadius: '4px',
-                        backgroundColor: 'var(--bg-surface-elevated)',
-                        border: '1px solid var(--border-subtle)',
+                        backgroundColor: '#f1f5f9',
+                        border: '1px solid #e2e8f0',
                         marginRight: '8px',
                         fontSize: '0.75rem',
+                        color: '#0f172a',
                       }}
                     >
                       {evt.topic}

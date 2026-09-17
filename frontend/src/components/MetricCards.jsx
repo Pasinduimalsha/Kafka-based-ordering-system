@@ -8,7 +8,8 @@ export default function MetricCards({ metrics }) {
       value: `$${(metrics.runningAveragePrice || 0).toFixed(2)}`,
       caption: 'Real-time cumulative stream average',
       icon: TrendingUp,
-      accentColor: 'var(--brand-accent)',
+      iconColor: '#2563eb',
+      iconBg: '#eff6ff',
       isPrimary: true,
     },
     {
@@ -16,28 +17,32 @@ export default function MetricCards({ metrics }) {
       value: (metrics.totalOrders || 0).toLocaleString(),
       caption: `Range: $${(metrics.minPrice || 0).toFixed(2)} – $${(metrics.maxPrice || 0).toFixed(2)}`,
       icon: ShoppingCart,
-      accentColor: 'var(--text-muted)',
+      iconColor: '#0284c7',
+      iconBg: '#f0f9ff',
     },
     {
       title: 'Cumulative Revenue',
       value: `$${(metrics.totalRevenue || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
       caption: 'Aggregated gross transaction volume',
       icon: DollarSign,
-      accentColor: '#34d399',
+      iconColor: '#059669',
+      iconBg: '#ecfdf5',
     },
     {
       title: 'Retry Attempts',
       value: (metrics.totalRetries || 0).toLocaleString(),
       caption: 'Transient failures queued for retry',
       icon: RefreshCw,
-      accentColor: '#fbbf24',
+      iconColor: '#d97706',
+      iconBg: '#fffbeb',
     },
     {
       title: 'Dead Letter Queue',
       value: (metrics.totalDlqMessages || 0).toLocaleString(),
       caption: 'Permanently failed or unrouted messages',
       icon: AlertTriangle,
-      accentColor: '#f87171',
+      iconColor: '#dc2626',
+      iconBg: '#fef2f2',
     },
   ];
 
@@ -51,27 +56,40 @@ export default function MetricCards({ metrics }) {
             className="card"
             style={{
               padding: '18px 20px',
-              borderLeft: card.isPrimary ? '3px solid var(--brand-primary)' : undefined,
+              borderTop: card.isPrimary ? '3px solid var(--brand-primary)' : '1px solid var(--border-subtle)',
             }}
           >
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
-              <span style={{ fontSize: '0.8125rem', fontWeight: 500, color: 'var(--text-muted)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
+              <span style={{ fontSize: '0.8125rem', fontWeight: 600, color: 'var(--text-muted)' }}>
                 {card.title}
               </span>
-              <Icon size={16} color={card.accentColor} />
+              <div
+                style={{
+                  width: '28px',
+                  height: '28px',
+                  borderRadius: '6px',
+                  backgroundColor: card.iconBg,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: card.iconColor,
+                }}
+              >
+                <Icon size={16} />
+              </div>
             </div>
             <div
               style={{
                 fontSize: '1.625rem',
-                fontWeight: 600,
-                color: card.isPrimary ? 'var(--text-main)' : 'var(--text-main)',
-                letterSpacing: '-0.01em',
+                fontWeight: 700,
+                color: card.isPrimary ? 'var(--brand-primary)' : 'var(--text-main)',
+                letterSpacing: '-0.02em',
                 marginBottom: '4px',
               }}
             >
               {card.value}
             </div>
-            <div style={{ fontSize: '0.75rem', color: 'var(--text-dim)' }}>
+            <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
               {card.caption}
             </div>
           </div>

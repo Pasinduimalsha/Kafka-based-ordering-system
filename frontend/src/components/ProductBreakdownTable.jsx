@@ -38,13 +38,13 @@ export default function ProductBreakdownTable({ perProduct }) {
             ) : (
               products.map(([name, stat], idx) => (
                 <tr key={idx}>
-                  <td style={{ fontWeight: 500 }}>{name}</td>
+                  <td style={{ fontWeight: 600, color: 'var(--text-main)' }}>{name}</td>
                   <td style={{ textAlign: 'center' }}>
                     <span className="badge badge-neutral font-mono">
                       {stat.count}
                     </span>
                   </td>
-                  <td className="font-mono" style={{ textAlign: 'right', fontWeight: 600, color: 'var(--brand-accent)' }}>
+                  <td className="font-mono" style={{ textAlign: 'right', fontWeight: 600, color: 'var(--brand-primary)' }}>
                     ${(stat.averagePrice || 0).toFixed(2)}
                   </td>
                   <td className="font-mono" style={{ textAlign: 'right', color: 'var(--text-muted)' }}>
@@ -53,7 +53,7 @@ export default function ProductBreakdownTable({ perProduct }) {
                   <td className="font-mono" style={{ textAlign: 'right', color: 'var(--text-muted)' }}>
                     ${(stat.maxPrice || 0).toFixed(2)}
                   </td>
-                  <td className="font-mono" style={{ textAlign: 'right', fontWeight: 600, color: '#34d399' }}>
+                  <td className="font-mono" style={{ textAlign: 'right', fontWeight: 600, color: '#059669' }}>
                     ${(stat.totalRevenue || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </td>
                 </tr>

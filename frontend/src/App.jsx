@@ -86,8 +86,9 @@ export default function App() {
       <nav
         style={{
           borderBottom: '1px solid var(--border-subtle)',
-          backgroundColor: 'var(--bg-surface)',
+          backgroundColor: '#ffffff',
           padding: '12px 24px',
+          boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.03)',
         }}
       >
         <div
@@ -117,7 +118,7 @@ export default function App() {
               <Server size={18} />
             </div>
             <div>
-              <div style={{ fontSize: '1rem', fontWeight: 700, letterSpacing: '-0.01em' }}>
+              <div style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--text-main)', letterSpacing: '-0.01em' }}>
                 Kafka Stream Ordering System
               </div>
               <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
@@ -135,7 +136,7 @@ export default function App() {
                 padding: '4px 10px',
                 borderRadius: '4px',
                 fontSize: '0.75rem',
-                fontWeight: 500,
+                fontWeight: 600,
                 backgroundColor: connected ? 'var(--status-success-bg)' : 'var(--status-danger-bg)',
                 color: connected ? 'var(--status-success-text)' : 'var(--status-danger-text)',
                 border: `1px solid ${connected ? 'var(--status-success-border)' : 'var(--status-danger-border)'}`,
@@ -150,7 +151,7 @@ export default function App() {
               target="_blank"
               rel="noreferrer"
               className="btn btn-secondary"
-              style={{ fontSize: '0.75rem', padding: '5px 10px' }}
+              style={{ fontSize: '0.75rem', padding: '6px 12px' }}
             >
               Kafka Console <ExternalLink size={12} />
             </a>
@@ -158,7 +159,7 @@ export default function App() {
             <button
               onClick={handleReset}
               className="btn btn-outline"
-              style={{ fontSize: '0.75rem', padding: '5px 10px' }}
+              style={{ fontSize: '0.75rem', padding: '6px 12px' }}
               title="Reset metrics"
             >
               <RotateCcw size={12} /> Reset

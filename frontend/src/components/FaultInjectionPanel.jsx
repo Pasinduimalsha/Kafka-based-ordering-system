@@ -51,10 +51,10 @@ export default function FaultInjectionPanel({ onActionTriggered }) {
           style={{ justifyContent: 'space-between', padding: '12px 16px', textAlign: 'left' }}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <Play size={16} color="var(--brand-primary)" />
+            <Play size={16} color="#2563eb" />
             <div>
               <div style={{ fontSize: '0.8125rem', fontWeight: 600 }}>Stream Standard Orders</div>
-              <div style={{ fontSize: '0.75rem', color: 'var(--text-dim)' }}>Dispatches 10 valid orders (300ms intervals)</div>
+              <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Dispatches 10 valid orders (300ms intervals)</div>
             </div>
           </div>
           <span className="badge badge-neutral">10 msg</span>
@@ -68,10 +68,10 @@ export default function FaultInjectionPanel({ onActionTriggered }) {
           style={{ justifyContent: 'space-between', padding: '12px 16px', textAlign: 'left' }}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <RefreshCw size={16} color="#fbbf24" />
+            <RefreshCw size={16} color="#d97706" />
             <div>
               <div style={{ fontSize: '0.8125rem', fontWeight: 600 }}>Simulate Transient Error</div>
-              <div style={{ fontSize: '0.75rem', color: 'var(--text-dim)' }}>Triggers 3 retry attempts with exponential backoff</div>
+              <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Triggers 3 retry attempts with exponential backoff</div>
             </div>
           </div>
           <span className="badge badge-warning">Retry Policy</span>
@@ -85,10 +85,10 @@ export default function FaultInjectionPanel({ onActionTriggered }) {
           style={{ justifyContent: 'space-between', padding: '12px 16px', textAlign: 'left' }}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <AlertTriangle size={16} color="#f87171" />
+            <AlertTriangle size={16} color="#dc2626" />
             <div>
               <div style={{ fontSize: '0.8125rem', fontWeight: 600 }}>Simulate Fatal Error (DLQ)</div>
-              <div style={{ fontSize: '0.75rem', color: 'var(--text-dim)' }}>Produces negative price record routed directly to DLQ</div>
+              <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Produces negative price record routed directly to DLQ</div>
             </div>
           </div>
           <span className="badge badge-danger">DLQ</span>
@@ -102,10 +102,10 @@ export default function FaultInjectionPanel({ onActionTriggered }) {
           style={{ justifyContent: 'space-between', padding: '12px 16px', textAlign: 'left' }}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <ListPlus size={16} color="var(--text-muted)" />
+            <ListPlus size={16} color="#475569" />
             <div>
               <div style={{ fontSize: '0.8125rem', fontWeight: 600 }}>Stream Mixed Load</div>
-              <div style={{ fontSize: '0.75rem', color: 'var(--text-dim)' }}>15 orders combining valid, retrying, and DLQ cases</div>
+              <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>15 orders combining valid, retrying, and DLQ cases</div>
             </div>
           </div>
           <span className="badge badge-neutral">15 msg</span>
@@ -119,9 +119,9 @@ export default function FaultInjectionPanel({ onActionTriggered }) {
               padding: '8px 12px',
               borderRadius: '4px',
               fontSize: '0.75rem',
-              backgroundColor: 'var(--bg-app)',
-              border: '1px solid var(--border-subtle)',
-              color: 'var(--text-muted)',
+              backgroundColor: '#f1f5f9',
+              border: '1px solid #e2e8f0',
+              color: '#334155',
             }}
           >
             &gt; {statusLog}
