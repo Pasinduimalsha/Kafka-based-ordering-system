@@ -27,8 +27,8 @@ public class OrderConsumerListener {
 
     /**
      * Main Kafka Consumer listener with Spring Kafka Non-Blocking Retryable Topics.
-     * Retries transient failures up to 3 times with exponential backoff (1s, 2s, 4s).
-     * Routes exhausted retries or fatal errors to orders-dlq topic automatically.
+     * Retries transient failures with exponential backoff (1s, 2s, 4s).
+     * Excludes IllegalArgumentException (fatal errors) so they route immediately to DLQ.
      */
     @RetryableTopic(
             attempts = "3",
@@ -36,7 +36,8 @@ public class OrderConsumerListener {
             topicSuffixingStrategy = TopicSuffixingStrategy.SUFFIX_WITH_INDEX_VALUE,
             dltStrategy = DltStrategy.ALWAYS_RETRY_ON_ERROR,
             dltTopicSuffix = "-dlq",
-            autoCreateTopics = "true"
+            autoCreateTopics = "true",
+            exclude = {IllegalArgumentException.class}
     )
     @KafkaListener(
             topics = "${app.kafka.topics.orders:orders}",
@@ -44,8 +45,7 @@ public class OrderConsumerListener {
     )
     public void consumeOrder(
             ConsumerRecord<String, Order> record,
-            @Header(value = KafkaHeaders.RECEIVED_TOPIC, defaultValue = "orders") String topic,
-            @Header(value = "retry_count", required = false, defaultValue = "0") String retryHeader
+            @Header(value = KafkaHeaders.RECEIVED_TOPIC, defaultValue = "orders") String topic
     ) {
         Order order = record.value();
         if (order == null) {
@@ -53,47 +53,38 @@ public class OrderConsumerListener {
             return;
         }
 
-        int currentAttempt = 1;
-        if (topic.contains("-retry")) {
-            try {
-                String suffix = topic.substring(topic.lastIndexOf("-retry-") + 7);
-                currentAttempt = Integer.parseInt(suffix) + 1;
-            } catch (Exception ignored) {
-                currentAttempt = 2;
-            }
-        }
+        log.info("Received Order: orderId={}, product={}, price={}, topic={}",
+                order.getOrderId(), order.getProduct(), order.getPrice(), topic);
 
-        log.info("Received Order: orderId={}, product={}, price={}, topic={}, attempt={}",
-                order.getOrderId(), order.getProduct(), order.getPrice(), topic, currentAttempt);
-
-        // Simulated Fatal Failure (Non-recoverable) -> Routes directly to DLQ
+        // 1. Simulated Fatal Failure (Non-recoverable) -> Routes directly to DLQ
         if (order.getProduct().contains("FATAL_FAIL") || order.getPrice() < 0) {
             log.error("[Fatal Error] Invalid order payload for orderId={}: price={}, product={}",
                     order.getOrderId(), order.getPrice(), order.getProduct());
-            throw new IllegalArgumentException("Fatal unrecoverable error: Invalid price or fatal test payload: " + order.getProduct());
+            throw new IllegalArgumentException("Fatal unrecoverable error: Invalid price ($" + order.getPrice() + ") or forbidden item: " + order.getProduct());
         }
 
-        // Simulated Transient Failure (Recoverable on final retry)
+        // 2. Simulated Transient Failure (Recoverable on retry)
         if (order.getProduct().contains("TEMP_FAIL")) {
-            if (currentAttempt < 3) {
-                log.warn("[Transient Error] Simulating temporary inventory lock for orderId={} on attempt {}",
-                        order.getOrderId(), currentAttempt);
+            if (!topic.contains("-retry")) {
+                // First arrival on main topic -> Simulate lock and trigger retry
+                log.warn("[Transient Error] Simulating temporary inventory lock for orderId={}", order.getOrderId());
                 aggregationService.recordRetry(
                         order.getOrderId(),
                         order.getProduct(),
                         (double) order.getPrice(),
                         topic,
-                        currentAttempt,
-                        "Simulated temporary inventory lock"
+                        1,
+                        "Simulated temporary inventory lock (queued for retry)"
                 );
                 throw new IllegalStateException("Temporary lock on item: " + order.getProduct());
             } else {
-                log.info("[Transient Error Resolved] Order {} successfully unlocked on retry attempt {}",
-                        order.getOrderId(), currentAttempt);
+                // Arrived via retry topic -> Recovered and successfully unlocked!
+                log.info("[Transient Error Resolved] Order {} successfully unlocked on retry topic {}",
+                        order.getOrderId(), topic);
             }
         }
 
-        // Valid order -> Process & update real-time running average
+        // 3. Valid Order -> Process & update real-time running average
         aggregationService.recordValidOrder(
                 order.getOrderId(),
                 order.getProduct(),
@@ -127,8 +118,8 @@ public class OrderConsumerListener {
                 product,
                 price,
                 topic,
-                3,
-                "Exhausted maximum retry attempts (3) or fatal payload validation failure"
+                order != null && order.getPrice() < 0 ? 0 : 3,
+                "Permanent failure routed to DLQ: Non-recoverable validation failure or exhausted retries"
         );
     }
 }

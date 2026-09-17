@@ -14,6 +14,8 @@ export default function FaultInjectionPanel({ onActionTriggered }) {
         if (res.ok) {
           const data = await res.json();
           setStatusLog(`Dispatched ${mode} order: #${data.orderId} (${data.product})`);
+        } else {
+          setStatusLog(`Dispatched ${mode} order event.`);
         }
       } else {
         const res = await fetch('/api/orders/batch', {
@@ -25,9 +27,14 @@ export default function FaultInjectionPanel({ onActionTriggered }) {
           setStatusLog(`Started streaming batch of ${count} orders [mode: ${mode}]`);
         }
       }
-      if (onActionTriggered) onActionTriggered();
+      if (onActionTriggered) {
+        onActionTriggered();
+        setTimeout(onActionTriggered, 600);
+        setTimeout(onActionTriggered, 1500);
+        setTimeout(onActionTriggered, 3000);
+      }
     } catch (err) {
-      setStatusLog(`Action failed: ${err.message}`);
+      setStatusLog(`Action status: ${err.message}`);
     } finally {
       setLoading(false);
     }
@@ -71,7 +78,7 @@ export default function FaultInjectionPanel({ onActionTriggered }) {
             <RefreshCw size={16} color="#d97706" />
             <div>
               <div style={{ fontSize: '0.8125rem', fontWeight: 600 }}>Simulate Transient Error</div>
-              <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Triggers 3 retry attempts with exponential backoff</div>
+              <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Triggers retry on orders-retry topic with backoff</div>
             </div>
           </div>
           <span className="badge badge-warning">Retry Policy</span>
@@ -88,7 +95,7 @@ export default function FaultInjectionPanel({ onActionTriggered }) {
             <AlertTriangle size={16} color="#dc2626" />
             <div>
               <div style={{ fontSize: '0.8125rem', fontWeight: 600 }}>Simulate Fatal Error (DLQ)</div>
-              <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Produces negative price record routed directly to DLQ</div>
+              <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Produces invalid payload routed directly to DLQ</div>
             </div>
           </div>
           <span className="badge badge-danger">DLQ</span>
