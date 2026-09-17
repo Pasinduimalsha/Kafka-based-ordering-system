@@ -9,16 +9,16 @@ An enterprise-grade, event-driven microservices architecture built with **Apache
 ```mermaid
 flowchart TD
     subgraph ClientTier ["Frontend Presentation Layer"]
-        UI["React Web Application (:3000)\n- Real-time Running Avg KPI\n- Order Ingestion Form & Fault Injector\n- Live Kafka Message Stream Audit Log"]
+        UI["React Web Application (:3000)<br/>- Real-time Running Avg KPI<br/>- Order Ingestion Form & Fault Injector<br/>- Live Kafka Message Stream Audit Log"]
     end
 
     subgraph GatewayTier ["API Gateway Layer"]
-        GW["Spring Cloud API Gateway (:8000)\n- Centralized Routing & CORS\n- Health & Metrics Aggregation"]
+        GW["Spring Cloud API Gateway (:8000)<br/>- Centralized Routing & CORS<br/>- Health & Metrics Aggregation"]
     end
 
     subgraph Microservices ["Spring Boot Microservices"]
-        OS["order-service (:8081)\n- Avro Order Producer\n- REST Ingestion API\n- Fault Injection Engine"]
-        AS["analytics-service (:8082)\n- Avro Kafka Listener\n- Real-Time Running Avg Engine\n- Spring Kafka @RetryableTopic & DLQ\n- Server-Sent Events (SSE) Stream"]
+        OS["order-service (:8081)<br/>- Avro Order Producer<br/>- REST Ingestion API<br/>- Fault Injection Engine"]
+        AS["analytics-service (:8082)<br/>- Avro Kafka Listener<br/>- Real-Time Running Avg Engine<br/>- Spring Kafka @RetryableTopic & DLQ<br/>- Server-Sent Events Stream"]
     end
 
     subgraph KafkaPlatform ["Event Streaming & Schema Infrastructure (Docker)"]
@@ -37,13 +37,13 @@ flowchart TD
     GW -->|/api/orders/**| OS
     GW -->|/api/analytics/**| AS
 
-    OS -->|Register / Validate Schema| SR
+    OS -->|Register & Validate Schema| SR
     OS -->|KafkaAvroSerializer| T_MAIN
 
     T_MAIN --> AS
     T_RETRY --> AS
 
-    AS -.->|Transient Failure & Retries < 3 (Backoff)| T_RETRY
+    AS -.->|Transient Error - Exponential Backoff| T_RETRY
     AS -.->|Fatal Error or Exhausted Retries| T_DLQ
 ```
 
