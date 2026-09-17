@@ -9,16 +9,16 @@ An enterprise-grade, event-driven microservices architecture built with **Apache
 ```mermaid
 flowchart TD
     subgraph ClientTier ["Frontend Presentation Layer"]
-        UI["React Web Application (:3000)\n- Real-time Running Avg KPI\n- Order Generator & Fault Injector\n- Live Kafka Stream & DLQ Inspector"]
+        UI["React Web Application (:3000)\n- Real-time Running Avg KPI\n- Order Ingestion Form & Fault Injector\n- Live Kafka Message Stream Audit Log"]
     end
 
     subgraph GatewayTier ["API Gateway Layer"]
-        GW["Spring Cloud API Gateway (:8080)\n- Centralized Routing & CORS\n- Health & Metrics Aggregation"]
+        GW["Spring Cloud API Gateway (:8000)\n- Centralized Routing & CORS\n- Health & Metrics Aggregation"]
     end
 
     subgraph Microservices ["Spring Boot Microservices"]
         OS["order-service (:8081)\n- Avro Order Producer\n- REST Ingestion API\n- Fault Injection Engine"]
-        AS["analytics-service (:8082)\n- Avro Kafka Listener\n- Real-Time Running Avg Calculator\n- Spring Kafka @RetryableTopic & DLQ\n- Server-Sent Events (SSE) Stream"]
+        AS["analytics-service (:8082)\n- Avro Kafka Listener\n- Real-Time Running Avg Engine\n- Spring Kafka @RetryableTopic & DLQ\n- Server-Sent Events (SSE) Stream"]
     end
 
     subgraph KafkaPlatform ["Event Streaming & Schema Infrastructure (Docker)"]
@@ -71,52 +71,55 @@ The data contract is strictly governed by Schema Registry and compiled into immu
 
 ## ⚙️ Microservices & Modules
 
-| Module | Port | Technology | Purpose |
+| Module / Tier | Port | Tech Stack | Responsibility |
 | :--- | :--- | :--- | :--- |
-| `common-avro` | - | Apache Avro 1.11 | Generates type-safe `Order` Java classes from `order.avsc`. |
-| `api-gateway` | `8080` | Spring Cloud Gateway | Centralized reverse proxy, routing `/api/orders/**` and `/api/analytics/**`. |
-| `order-service` | `8081` | Spring Boot 3, Spring Kafka | Producer API with `KafkaAvroSerializer`, Schema Registry, and fault simulation. |
-| `analytics-service` | `8082` | Spring Boot 3, Spring Kafka | Consumer with `KafkaAvroDeserializer`, real-time running average engine, `@RetryableTopic`, and DLQ. |
-| `frontend` | `3000` | React 18, Vite, Modern CSS | Live visual dashboard, dynamic order creator, fault test panel, and live event feed. |
+| **`common-avro`** | - | Apache Avro 1.11, Maven Plugin | Generates type-safe `com.ordering.avro.Order` POJOs directly from `order.avsc`. |
+| **`order-service`** | `8081` (host `8082`) | Spring Boot 3, Spring Kafka, Avro Serializer | Producer microservice for order creation, batch streaming, and fault simulation. |
+| **`analytics-service`** | `8082` (host `8083`) | Spring Boot 3, Spring Kafka, Avro Deserializer | Consumer microservice with non-blocking `@RetryableTopic`, `@DltHandler`, and real-time running average engine. |
+| **`api-gateway`** | `8080` (host `8000`) | Spring Cloud Gateway | Central API Gateway routing `/api/orders/**` $\rightarrow$ `order-service` and `/api/analytics/**` $\rightarrow$ `analytics-service` with CORS. |
+| **`frontend`** | `3000` | React 18, Vite, Modern SaaS Design | Formal enterprise console for order placement, resilience simulation, and live stream audit. |
+| **Infrastructure** | `9092, 8081, 8090` | Docker Compose | Kafka Broker, Zookeeper, Confluent Schema Registry (`:8081`), and Kafka UI (`:8090`). |
 
 ---
 
-## 🚀 Quickstart & One-Click Deployment
+## 🚀 Deployment & Execution
 
 ### Prerequisites
 - [Docker & Docker Compose](https://www.docker.com/)
 - (Optional for local development): Java 17+, Maven 3.9+, Node.js 18+
 
-### Launching the Full Stack (Docker Compose)
+### Starting the Full Stack
 ```bash
 docker compose up --build -d
 ```
 
-### Accessing the Applications
-- 🌐 **React Frontend**: [http://localhost:3000](http://localhost:3000)
-- 🚪 **Spring Cloud API Gateway**: [http://localhost:8080](http://localhost:8080)
-- 📊 **Kafka UI Web Console**: [http://localhost:8090](http://localhost:8090)
+### Accessing the Services
+- 🌐 **Web Dashboard**: [http://localhost:3000](http://localhost:3000)
+- 🚪 **API Gateway**: [http://localhost:8000](http://localhost:8000)
+- 📊 **Kafka UI Management Console**: [http://localhost:8090](http://localhost:8090)
 - 📜 **Schema Registry**: [http://localhost:8081](http://localhost:8081)
 
----
-
-## 🎯 How to Demonstrate the System Live
-
-1. Open **[http://localhost:3000](http://localhost:3000)** in your browser.
-2. **Real-Time Running Average**:
-   - Click **"Stream 10 Clean Orders"** or use the order form to submit custom orders.
-   - Watch the **Running Average Price** card and per-product table update dynamically on each incoming message.
-3. **Transient Failure & Exponential Backoff Retry**:
-   - Click **"Simulate Transient Failure"**.
-   - Observe the order enter the retry topics with exponential backoff (1s, 2s, 4s) before successfully resolving.
-4. **Dead Letter Queue (DLQ)**:
-   - Click **"Simulate Fatal DLQ Error"**.
-   - Notice the order immediately routed to `orders-dlq` with red badge indicators and inspect the record on Kafka UI ([http://localhost:8090](http://localhost:8090)).
+### Stopping the Stack
+```bash
+docker compose down
+```
 
 ---
 
-## 🧪 Running Automated Tests
+## 🎯 Verification & Testing
 
+### Running Maven Unit Tests
 ```bash
 mvn clean test
 ```
+
+### Demonstration Scenarios
+1. **Real-time Running Average Calculation**:
+   - Use the **Order Ingestion** form or click **"Stream Standard Orders"** on the dashboard.
+   - Observe the **Running Average Price** card update in real-time as each Kafka message is consumed.
+2. **Transient Failure & Exponential Backoff Retry**:
+   - Click **"Simulate Transient Error"**.
+   - Observe the order retried across retry topics (`orders-retry-0`, `orders-retry-1`) with exponential delays before resolving.
+3. **Dead Letter Queue (DLQ)**:
+   - Click **"Simulate Fatal Error (DLQ)"**.
+   - Notice the event immediately marked with the red **DLQ Routed** badge and inspect the record on Kafka UI ([http://localhost:8090](http://localhost:8090)).
